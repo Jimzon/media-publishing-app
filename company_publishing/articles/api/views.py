@@ -7,6 +7,7 @@ from company_publishing.articles.permissions import ArticlePermission
 
 
 class ArticleViewSet(viewsets.ModelViewSet):
+    lookup_field = "slug"
     queryset = Article.objects.all()
     serializer_class = ArticleSerializer
     permission_classes = [ArticlePermission]

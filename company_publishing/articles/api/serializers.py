@@ -4,12 +4,11 @@ from company_publishing.articles.models import Article
 
 
 class ArticleSerializer(serializers.ModelSerializer):
-    publish = serializers.BooleanField(required=False, write_only=True)
-
     class Meta:
         model = Article
         fields = "__all__"
         extra_kwargs = {
+            "slug": {"read_only": True},
             "writer": {"read_only": True},
             "editor": {"read_only": True},
         }

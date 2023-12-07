@@ -1,4 +1,8 @@
+import random
+import string
+
 from django.db import models
+from django.utils.text import slugify
 
 
 class Article(models.Model):
@@ -8,6 +12,7 @@ class Article(models.Model):
 
     company = models.ForeignKey("companies.Company", on_delete=models.CASCADE, related_name="articles")
     title = models.TextField()
+    slug = models.SlugField(max_length=200, unique=True, blank=True)
     body = models.TextField()
     status = models.TextField(choices=Status.choices, default=Status.FOR_EDIT)
     writer = models.ForeignKey("users.User", on_delete=models.CASCADE, related_name="written_articles")
@@ -21,5 +26,15 @@ class Article(models.Model):
     def __str__(self):
         return self.title
 
+    def save(self, *args, **kwargs):
+        # set slug
+        if not self.slug:
+            random_string = "".join(random.choices(string.ascii_lowercase + string.digits, k=5))
+
+            self.slug = slugify(self.title)[:190] + "-" + random_string
+
+        super().save(*args, **kwargs)
+
+    @property
     def is_published(self):
         return self.status == self.Status.PUBLISHED
