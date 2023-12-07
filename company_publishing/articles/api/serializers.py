@@ -1,3 +1,4 @@
+from django.utils import timezone
 from rest_framework import serializers
 
 from company_publishing.articles.models import Article
@@ -11,6 +12,7 @@ class ArticleSerializer(serializers.ModelSerializer):
             "slug": {"read_only": True},
             "writer": {"read_only": True},
             "editor": {"read_only": True},
+            "published_date": {"read_only": True},
         }
 
     def validate_status(self, value):
@@ -26,3 +28,10 @@ class ArticleSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Cannot publish a new article")
 
         return value
+
+    def validate(self, attrs):
+        data = super().validate(attrs)
+        if self.instance and data.get("status") == Article.Status.PUBLISHED:
+            if not self.instance.is_published:
+                data["published_date"] = timezone.now()
+        return data

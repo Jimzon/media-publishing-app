@@ -2,6 +2,7 @@ import random
 import string
 
 from django.db import models
+from django.utils import timezone
 from django.utils.text import slugify
 
 
@@ -38,3 +39,7 @@ class Article(models.Model):
     @property
     def is_published(self):
         return self.status == self.Status.PUBLISHED
+
+    def publish(self):
+        self.published_date = timezone.now()
+        self.save()
