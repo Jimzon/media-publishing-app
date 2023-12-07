@@ -83,6 +83,7 @@ THIRD_PARTY_APPS = [
 ]
 
 LOCAL_APPS = [
+    "company_publishing.core",
     "company_publishing.users",
     "company_publishing.companies",
     "company_publishing.articles",

@@ -30,3 +30,6 @@ class User(AbstractUser):
 
         """
         return reverse("users:detail", kwargs={"username": self.username})
+
+    def is_editor(self) -> bool:
+        return self.type == self.Type.EDITOR
