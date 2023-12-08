@@ -9,6 +9,8 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import GenericViewSet
 
+from company_publishing.users.permissions import UserViewSetPermission
+
 from .serializers import SignupSerializer, UserSerializer
 
 User = get_user_model()
@@ -16,6 +18,7 @@ User = get_user_model()
 
 class UserViewSet(RetrieveModelMixin, ListModelMixin, UpdateModelMixin, CreateModelMixin, GenericViewSet):
     serializer_class = UserSerializer
+    permission_classes = [UserViewSetPermission]
     queryset = User.objects.select_related("added_by")
     lookup_field = "username"
 
