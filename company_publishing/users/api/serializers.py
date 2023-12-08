@@ -9,7 +9,7 @@ User = get_user_model()
 class EmbeddedUserSerializer(serializers.ModelSerializer[UserType]):
     class Meta:
         model = User
-        fields = ["username", "name", "image"]
+        fields = ["username", "email", "name", "image"]
 
 
 class UserSerializer(serializers.ModelSerializer[UserType]):
@@ -17,12 +17,21 @@ class UserSerializer(serializers.ModelSerializer[UserType]):
 
     class Meta:
         model = User
-        fields = ["username", "name", "type", "image", "password", "added_by"]
+        fields = ["username", "email", "name", "type", "image", "password", "added_by"]
 
         extra_kwargs = {
             "url": {"view_name": "api:user-detail", "lookup_field": "username"},
             "password": {"write_only": True, "required": False},
         }
+
+    def validate_email(self, value: str) -> str:
+        users = User.objects.filter(email__iexact=value)
+        if self.instance:
+            users = users.exclude(email=self.instance.email)
+
+        if users.exists():
+            raise serializers.ValidationError("This email is already in use.")
+        return value
 
     def validate(self, attrs: dict[str, str]) -> dict[str, str]:
         data = super().validate(attrs)
@@ -49,8 +58,14 @@ class UserSerializer(serializers.ModelSerializer[UserType]):
 class SignupSerializer(serializers.ModelSerializer[UserType]):
     class Meta:
         model = User
-        fields = ["username", "name", "password"]
+        fields = ["username", "email", "name", "password"]
         extra_kwargs = {"password": {"write_only": True}}
+
+    def validate_email(self, value: str) -> str:
+        users = User.objects.filter(email__iexact=value)
+        if users.exists():
+            raise serializers.ValidationError("This email is already in use.")
+        return value
 
     def create(self, validated_data: dict[str, str]) -> User:
         return User.objects.create_user(**validated_data)
