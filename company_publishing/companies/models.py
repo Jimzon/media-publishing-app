@@ -8,6 +8,7 @@ class Company(models.Model):
 
     name = models.TextField()
     status = models.TextField(choices=Status.choices, default=Status.ACTIVE)
+    image = models.ImageField(upload_to="companies", null=True, blank=True)
     created_by = models.ForeignKey("users.User", on_delete=models.CASCADE)
     created_date = models.DateTimeField(auto_now_add=True)
     updated_date = models.DateTimeField(auto_now=True)

@@ -15,6 +15,7 @@ class Article(models.Model):
     title = models.TextField()
     slug = models.SlugField(max_length=200, unique=True, blank=True)
     body = models.TextField()
+    image = models.ImageField(upload_to="articles", blank=True, null=True)
     status = models.TextField(choices=Status.choices, default=Status.FOR_EDIT)
     writer = models.ForeignKey("users.User", on_delete=models.CASCADE, related_name="written_articles")
     editor = models.ForeignKey(
@@ -40,6 +41,6 @@ class Article(models.Model):
     def is_published(self):
         return self.status == self.Status.PUBLISHED
 
-    def publish(self):
+    def publish(self, editor_id):
         self.published_date = timezone.now()
-        self.save()
+        self.editor_id = editor_id

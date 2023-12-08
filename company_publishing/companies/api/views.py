@@ -7,7 +7,7 @@ from company_publishing.companies.models import Company
 
 
 class CompanyViewSet(viewsets.ModelViewSet):
-    queryset = Company.objects.all()
+    queryset = Company.objects.select_related("created_by")
     serializer_class = CompanySerializer
     permission_classes = [IsAuthenticated]
     filter_backends = [django_filters.rest_framework.DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]

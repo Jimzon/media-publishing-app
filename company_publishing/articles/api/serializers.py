@@ -1,17 +1,18 @@
-from django.utils import timezone
 from rest_framework import serializers
 
 from company_publishing.articles.models import Article
+from company_publishing.users.api.serializers import EmbeddedUserSerializer
 
 
 class ArticleSerializer(serializers.ModelSerializer):
+    writer = EmbeddedUserSerializer(read_only=True)
+    editor = EmbeddedUserSerializer(read_only=True)
+
     class Meta:
         model = Article
         fields = "__all__"
         extra_kwargs = {
             "slug": {"read_only": True},
-            "writer": {"read_only": True},
-            "editor": {"read_only": True},
             "published_date": {"read_only": True},
         }
 
@@ -29,9 +30,9 @@ class ArticleSerializer(serializers.ModelSerializer):
 
         return value
 
-    def validate(self, attrs):
-        data = super().validate(attrs)
-        if self.instance and data.get("status") == Article.Status.PUBLISHED:
-            if not self.instance.is_published:
-                data["published_date"] = timezone.now()
-        return data
+    def save(self, **kwargs):
+        status = self.validated_data.get("status")
+        if self.instance and not self.instance.is_published and status == Article.Status.PUBLISHED:
+            self.instance.publish(self.context["request"].user.id)
+
+        return super().save(**kwargs)

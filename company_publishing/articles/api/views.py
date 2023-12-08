@@ -8,7 +8,7 @@ from company_publishing.articles.permissions import ArticlePermission
 
 class ArticleViewSet(viewsets.ModelViewSet):
     lookup_field = "slug"
-    queryset = Article.objects.all()
+    queryset = Article.objects.select_related("writer", "editor")
     serializer_class = ArticleSerializer
     permission_classes = [ArticlePermission]
     filter_backends = [django_filters.rest_framework.DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
